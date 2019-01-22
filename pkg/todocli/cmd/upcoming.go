@@ -13,6 +13,18 @@ var upcomingCmd = &cobra.Command{
 	Short: "Print out tasks that are upcoming",
 }
 
+var upcomingAllCmd = &cobra.Command{
+	Use:   "all",
+	Short: "Print out all tasks that are upcoming",
+	Run: func(cmd *cobra.Command, args []string) {
+		t := time.Now()
+		year, month, day := t.Date()
+		startOfToday := time.Date(year, month, day, 0, 0, 0, 0, t.Location())
+		dateFartherOut := time.Date(3000, 01, 01, 0, 0, 0, 0, t.Location())
+		retrieveAndPrintTasksByDate(startOfToday, dateFartherOut)
+	},
+}
+
 var upcomingTodayCmd = &cobra.Command{
 	Use:   "today",
 	Short: "Print out tasks that are upcoming today",
@@ -75,6 +87,7 @@ func retrieveAndPrintTasksByDate(startDate, endDate time.Time) {
 }
 
 func init() {
+	upcomingCmd.AddCommand(upcomingAllCmd)
 	upcomingCmd.AddCommand(upcomingTodayCmd)
 	upcomingCmd.AddCommand(upcomingWeekCmd)
 	upcomingCmd.AddCommand(upcomingMonthCmd)
