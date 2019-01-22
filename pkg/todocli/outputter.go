@@ -2,7 +2,11 @@ package todocli
 
 import (
 	"fmt"
+	"os"
+	"strconv"
 	"time"
+
+	"github.com/olekukonko/tablewriter"
 )
 
 // Outputter interface allows the outputting of Todo items in a nicer to look format
@@ -56,9 +60,16 @@ func (o *outputter) OutputTodoItems(items []Todo) {
 
 		fmt.Printf("%s:\n", key)
 
+		table := tablewriter.NewWriter(os.Stdout)
+		table.SetHeader([]string{"Index", "Description", "Due", "Important"})
+
 		for index, item := range items {
-			fmt.Printf("%v. %v (%v)\n", index+1, item.Text, item.Due.Format("01/02/2006"))
+			indexAsString := strconv.Itoa(index + 1)
+			importantAsString := strconv.FormatBool(item.Important)
+			table.Append([]string{indexAsString, item.Text, item.Due.Format("01/02/2006"), importantAsString})
 		}
+
+		table.Render()
 		fmt.Println("")
 
 		itemsPrinted += len(items)
