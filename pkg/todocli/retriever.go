@@ -1,4 +1,4 @@
-package main
+package todocli
 
 import (
 	"fmt"
@@ -9,19 +9,49 @@ import (
 	"strings"
 	"time"
 
-	"github.com/davecgh/go-spew/spew"
 	"github.com/fatih/structtag"
 	"github.com/go-yaml/yaml"
-	"github.com/sendhil/todocli/pkg/todocli"
 )
 
-func main() {
-	fmt.Println(getPathOfTodoItems())
-	items, err := parseRawTodoItems(getRawTodoItems())
+// TodoRetriever represents an interface that can retrieve Todo Items
+type TodoRetriever interface {
+	// GetItems retrieves all opened []Todo items
+	GetItems() ([]Todo, error)
+
+	// GetItemsWithMetadata retrieves all opened []Todo items that have metadata associated
+	GetItemsWithMetadata() ([]Todo, error)
+}
+
+type todoRetriever struct {
+}
+
+func (t *todoRetriever) GetItems() ([]Todo, error) {
+	return parseRawTodoItems(getRawTodoItems())
+}
+
+func (t *todoRetriever) GetItemsWithMetadata() ([]Todo, error) {
+	return parseRawTodoItems(getRawTodoItemsWithMetadata())
+}
+
+// NewTodoRetriever creates an object that can retrieve Todo item data
+func NewTodoRetriever() TodoRetriever {
+	return &todoRetriever{}
+}
+
+func getRawTodoItems() []string {
+	out, err := exec.Command("rg", "-i", "\\[ \\]", getPathOfTodoItems()).Output()
 	if err != nil {
 		panic(err)
 	}
-	spew.Dump(items)
+	return strings.Split(string(out), "\n")
+}
+
+func getRawTodoItemsWithMetadata() []string {
+	out, err := exec.Command("rg", "-i", "\\[ \\].*`.*`", getPathOfTodoItems()).Output()
+	if err != nil {
+		panic(err)
+	}
+	return strings.Split(string(out), "\n")
 }
 
 func getPathOfTodoItems() string {
@@ -35,7 +65,7 @@ func getPathOfTodoItems() string {
 		panic(err)
 	}
 
-	config := todocli.Config{}
+	config := Config{}
 	err = yaml.Unmarshal(data, &config)
 	if err != nil {
 		panic(err)
@@ -44,16 +74,8 @@ func getPathOfTodoItems() string {
 	return config.Path
 }
 
-func getRawTodoItems() []string {
-	out, err := exec.Command("rg", "-i", "\\[ \\].*`.*`", getPathOfTodoItems()).Output()
-	if err != nil {
-		panic(err)
-	}
-	return strings.Split(string(out), "\n")
-}
-
-func parseRawTodoItems(rawItems []string) ([]todocli.Todo, error) {
-	parsedItems := make([]todocli.Todo, 0)
+func parseRawTodoItems(rawItems []string) ([]Todo, error) {
+	parsedItems := make([]Todo, 0)
 
 	todoItemRegex := regexp.MustCompile("\\[ \\]\\s?([^`]*)`(.*)`")
 
@@ -66,7 +88,7 @@ func parseRawTodoItems(rawItems []string) ([]todocli.Todo, error) {
 		todoItemText := result[0][1]
 		todoItemMetadata := result[0][2]
 
-		item, err := attachMetadata(todocli.Todo{Text: todoItemText}, todoItemMetadata)
+		item, err := attachMetadata(Todo{Text: todoItemText}, todoItemMetadata)
 		if err != nil {
 			return parsedItems, err
 		}
@@ -77,8 +99,8 @@ func parseRawTodoItems(rawItems []string) ([]todocli.Todo, error) {
 	return parsedItems, nil
 }
 
-func attachMetadata(item todocli.Todo, metadata string) (todocli.Todo, error) {
-	itemToReturn := todocli.Todo{Text: item.Text}
+func attachMetadata(item Todo, metadata string) (Todo, error) {
+	itemToReturn := Todo{Text: item.Text}
 
 	fmt.Println("Attempting to parse :", metadata)
 	tags, err := structtag.Parse(metadata)
