@@ -2,7 +2,6 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"time"
 
 	"github.com/sendhil/todocli/pkg/todocli"
@@ -22,7 +21,7 @@ var upcomingTodayCmd = &cobra.Command{
 		year, month, day := t.Date()
 		startOfToday := time.Date(year, month, day, 0, 0, 0, 0, t.Location())
 		endOfToday := time.Date(year, month, day, 0, 0, 0, 0, t.Location()).Add(24 * time.Hour).Add(-1 * time.Minute)
-		retrieveAndPrintTasks(startOfToday, endOfToday)
+		retrieveAndPrintTasksByDate(startOfToday, endOfToday)
 	},
 }
 
@@ -41,7 +40,7 @@ var upcomingWeekCmd = &cobra.Command{
 		}
 		startOfWeek := time.Date(year, month, day, 0, 0, 0, 0, t.Location()).Add(time.Hour * 24 * time.Duration(daysToAdjust-7))
 		endOfWeek := time.Date(year, month, day, 0, 0, 0, 0, t.Location()).Add(time.Hour * 24 * time.Duration(daysToAdjust)).Add(-1 * time.Minute)
-		retrieveAndPrintTasks(startOfWeek, endOfWeek)
+		retrieveAndPrintTasksByDate(startOfWeek, endOfWeek)
 	},
 }
 
@@ -57,21 +56,16 @@ var upcomingMonthCmd = &cobra.Command{
 		}
 		startOfMonth := time.Date(year, month, 1, 0, 0, 0, 0, t.Location())
 		endOfMonth := time.Date(year, month+1, 1, 0, 0, 0, 0, t.Location()).Add(-1 * time.Minute)
-		retrieveAndPrintTasks(startOfMonth, endOfMonth)
+		retrieveAndPrintTasksByDate(startOfMonth, endOfMonth)
 	},
 }
 
-func retrieveAndPrintTasks(startDate, endDate time.Time) {
+func retrieveAndPrintTasksByDate(startDate, endDate time.Time) {
 	if Verbose {
 		fmt.Printf("Retrieving items between %v and %v\n", startDate, endDate)
 	}
 
-	retriever := todocli.NewTodoRetriever()
-	items, err := retriever.GetItemsWithMetadata()
-	if err != nil {
-		fmt.Println("Error : ", err)
-		os.Exit(1)
-	}
+	items := retrieveItemsWithMetadata()
 
 	filter := todocli.NewFilter()
 	filteredItems := filter.GetItemsBetweenDates(items, startDate, endDate)

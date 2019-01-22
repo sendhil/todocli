@@ -13,7 +13,7 @@ var overdueCmd = &cobra.Command{
 		t := time.Now()
 		year, month, day := t.Date()
 		endOfToday := time.Date(year, month, day, 0, 0, 0, 0, t.Location())
-		retrieveAndPrintTasks(time.Time{}, endOfToday)
+		retrieveAndPrintTasksByDate(time.Time{}, endOfToday)
 	},
 }
 
