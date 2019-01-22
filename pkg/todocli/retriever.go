@@ -102,7 +102,6 @@ func parseRawTodoItems(rawItems []string) ([]Todo, error) {
 func attachMetadata(item Todo, metadata string) (Todo, error) {
 	itemToReturn := Todo{Text: item.Text}
 
-	fmt.Println("Attempting to parse :", metadata)
 	tags, err := structtag.Parse(metadata)
 	if err != nil {
 		return itemToReturn, err
@@ -112,7 +111,7 @@ func attachMetadata(item Todo, metadata string) (Todo, error) {
 	dueDateTag, err := tags.Get("due")
 	if err == nil {
 		// The only error that comes out seems to indicate that the tag doesn't exist
-		dueDate, err := time.Parse("01-02-2006", dueDateTag.Name)
+		dueDate, err := time.ParseInLocation("01-02-2006", dueDateTag.Name, time.Now().Location())
 		if err != nil {
 			return itemToReturn, err
 		}
