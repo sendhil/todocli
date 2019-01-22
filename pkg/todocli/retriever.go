@@ -3,6 +3,7 @@ package todocli
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
 	"os/exec"
 	"os/user"
 	"regexp"
@@ -60,7 +61,13 @@ func getPathOfTodoItems() string {
 		panic(err)
 	}
 
-	data, err := ioutil.ReadFile(fmt.Sprintf("%s/.todocli.yaml", usr.HomeDir))
+	configPath := fmt.Sprintf("%s/.todocli.yaml", usr.HomeDir)
+
+	if _, err := os.Stat(configPath); err != nil {
+		panic("Can't find .todocli.yaml")
+	}
+
+	data, err := ioutil.ReadFile(configPath)
 	if err != nil {
 		panic(err)
 	}
