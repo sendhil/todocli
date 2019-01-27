@@ -11,6 +11,9 @@ import (
 var upcomingCmd = &cobra.Command{
 	Use:   "upcoming",
 	Short: "Print out tasks that are upcoming",
+	Run: func(cmd *cobra.Command, args []string) {
+		upcomingAllCmd.Run(cmd, args)
+	},
 }
 
 var upcomingAllCmd = &cobra.Command{
