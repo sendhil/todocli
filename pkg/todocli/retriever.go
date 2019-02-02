@@ -111,6 +111,7 @@ func attachMetadata(item Todo, metadata string) (Todo, error) {
 
 	tags, err := structtag.Parse(metadata)
 	if err != nil {
+		fmt.Println(fmt.Sprintf("Error parsing Metdata : '%s' for '%s'", metadata, item.Text))
 		return itemToReturn, err
 	}
 
