@@ -85,6 +85,7 @@ func retrieveAndPrintTasksByDate(startDate, endDate time.Time) {
 	filter := todocli.NewFilter()
 	filteredItems := filter.GetItemsBetweenDates(items, startDate, endDate)
 	filteredItems = filter.GetItemsWithTag(filteredItems, Tag)
+	filteredItems = filter.GetItemsWithFile(filteredItems, File)
 
 	outputter := todocli.NewOutputter()
 	outputter.OutputTodoItems(filteredItems)

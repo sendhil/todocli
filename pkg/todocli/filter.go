@@ -13,6 +13,7 @@ type Filter interface {
 	GetItemsBetweenDates(items []Todo, startDate, endDate time.Time) []Todo
 	GetImportantItems(items []Todo) []Todo
 	GetItemsWithTag(items []Todo, tag string) []Todo
+	GetItemsWithFile(items []Todo, file string) []Todo
 }
 
 type filter struct {
@@ -49,6 +50,23 @@ func (f *filter) GetItemsWithTag(items []Todo, tag string) []Todo {
 
 	for _, item := range items {
 		if strings.ToLower(item.Tag) == lowerCasedTag {
+			itemsToReturn = append(itemsToReturn, item)
+		}
+	}
+
+	return itemsToReturn
+}
+
+func (f *filter) GetItemsWithFile(items []Todo, file string) []Todo {
+	if len(file) == 0 {
+		return items
+	}
+
+	itemsToReturn := make([]Todo, 0)
+	lowerCasedFilename := strings.ToLower(file)
+
+	for _, item := range items {
+		if strings.ToLower(item.Filename) == lowerCasedFilename {
 			itemsToReturn = append(itemsToReturn, item)
 		}
 	}
