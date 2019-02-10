@@ -12,6 +12,7 @@ import (
 type Filter interface {
 	GetItemsBetweenDates(items []Todo, startDate, endDate time.Time) []Todo
 	GetImportantItems(items []Todo) []Todo
+	GetItemsWithTag(items []Todo, tag string) []Todo
 }
 
 type filter struct {
@@ -34,6 +35,23 @@ func (f *filter) GetItemsBetweenDates(items []Todo, startDate, endDate time.Time
 
 		return itemsToReturn[i].Due.Before(itemsToReturn[j].Due)
 	})
+
+	return itemsToReturn
+}
+
+func (f *filter) GetItemsWithTag(items []Todo, tag string) []Todo {
+	if len(tag) == 0 {
+		return items
+	}
+
+	itemsToReturn := make([]Todo, 0)
+	lowerCasedTag := strings.ToLower(tag)
+
+	for _, item := range items {
+		if strings.ToLower(item.Tag) == lowerCasedTag {
+			itemsToReturn = append(itemsToReturn, item)
+		}
+	}
 
 	return itemsToReturn
 }

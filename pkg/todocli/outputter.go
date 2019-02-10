@@ -61,12 +61,12 @@ func (o *outputter) OutputTodoItems(items []Todo) {
 		fmt.Printf("%s:\n", key)
 
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Index", "Description", "Due", "Important"})
+		table.SetHeader([]string{"Index", "Description", "Due", "Tag", "Important"})
 
 		for index, item := range items {
 			indexAsString := strconv.Itoa(index + 1)
 			importantAsString := strconv.FormatBool(item.Important)
-			table.Append([]string{indexAsString, item.Text, item.Due.Format("01/02/2006"), importantAsString})
+			table.Append([]string{indexAsString, item.Text, item.Due.Format("01/02/2006"), item.Tag, importantAsString})
 		}
 
 		table.Render()

@@ -13,9 +13,11 @@ var rootCmd = &cobra.Command{
 }
 
 var Verbose bool
+var Tag string
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
+	rootCmd.PersistentFlags().StringVarP(&Tag, "tag", "t", "", "tag to filter for")
 }
 
 // Execute executes the root command
