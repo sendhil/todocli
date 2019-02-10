@@ -19,6 +19,7 @@ func retrieveAllTasks() {
 
 	filter := todocli.NewFilter()
 	items = filter.GetItemsWithTag(items, Tag)
+	items = filterItemsByFile(filter, items)
 
 	outputter := todocli.NewOutputter()
 	outputter.OutputTodoItems(items)
