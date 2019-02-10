@@ -2,16 +2,12 @@ package todocli
 
 import (
 	"fmt"
-	"io/ioutil"
-	"os"
 	"os/exec"
-	"os/user"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/fatih/structtag"
-	"github.com/go-yaml/yaml"
 )
 
 // TodoRetriever represents an interface that can retrieve Todo Items
@@ -40,7 +36,9 @@ func NewTodoRetriever() TodoRetriever {
 }
 
 func getRawTodoItems() []string {
-	out, err := exec.Command("rg", "-i", "\\[ \\]", getPathOfTodoItems()).Output()
+	command := exec.Command("rg", "-i", "\\[ \\]")
+	command.Dir = getPathOfTodoItems()
+	out, err := command.Output()
 	if err != nil {
 		panic(err)
 	}
@@ -48,7 +46,9 @@ func getRawTodoItems() []string {
 }
 
 func getRawTodoItemsWithMetadata() []string {
-	out, err := exec.Command("rg", "-i", "\\[ \\].*`.*`", getPathOfTodoItems()).Output()
+	command := exec.Command("rg", "-i", "\\[ \\].*`.*`")
+	command.Dir = getPathOfTodoItems()
+	out, err := command.Output()
 	if err != nil {
 		panic(err)
 	}
@@ -56,28 +56,7 @@ func getRawTodoItemsWithMetadata() []string {
 }
 
 func getPathOfTodoItems() string {
-	usr, err := user.Current()
-	if err != nil {
-		panic(err)
-	}
-
-	configPath := fmt.Sprintf("%s/.todocli.yaml", usr.HomeDir)
-
-	if _, err := os.Stat(configPath); err != nil {
-		panic("Can't find .todocli.yaml")
-	}
-
-	data, err := ioutil.ReadFile(configPath)
-	if err != nil {
-		panic(err)
-	}
-
-	config := Config{}
-	err = yaml.Unmarshal(data, &config)
-	if err != nil {
-		panic(err)
-	}
-
+	config := getConfig()
 	return config.Path
 }
 
@@ -90,19 +69,30 @@ func parseRawTodoItems(rawItems []string) ([]Todo, error) {
 		if rawItem == "" {
 			continue
 		}
+
+		indexOfColon := strings.Index(rawItem, ":")
+		fileName := ""
+		if indexOfColon > 0 {
+			fileName = rawItem[0:indexOfColon]
+		}
+
 		// 2. Extract metadata
 		result := todoItemRegex.FindAllStringSubmatch(rawItem, -1)
 
 		// If there's no metadata then just attach the raw text
 		if len(result) == 0 {
-			parsedItems = append(parsedItems, Todo{Text: rawItem})
+			rawTodoText := ""
+			if indexOfColon > 0 {
+				rawTodoText = rawItem[indexOfColon+1 : len(rawItem)]
+			}
+			parsedItems = append(parsedItems, Todo{Text: rawTodoText, Filename: fileName})
 			continue
 		}
 
 		todoItemText := result[0][1]
 		todoItemMetadata := result[0][2]
 
-		item, err := attachMetadata(Todo{Text: todoItemText}, todoItemMetadata)
+		item, err := attachMetadata(Todo{Text: todoItemText, Filename: fileName}, todoItemMetadata)
 		if err != nil {
 			return parsedItems, err
 		}
@@ -114,7 +104,7 @@ func parseRawTodoItems(rawItems []string) ([]Todo, error) {
 }
 
 func attachMetadata(item Todo, metadata string) (Todo, error) {
-	itemToReturn := Todo{Text: item.Text}
+	itemToReturn := Todo{Text: item.Text, Filename: item.Filename}
 
 	tags, err := structtag.Parse(metadata)
 	if err != nil {

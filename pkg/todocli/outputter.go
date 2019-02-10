@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/olekukonko/tablewriter"
@@ -48,6 +49,9 @@ func (o *outputter) OutputTodoItems(items []Todo) {
 
 	itemsPrinted := 0
 	printedSpacer := false
+
+	config := getConfig()
+
 	for key, items := range itemsByBucket {
 		if len(items) == 0 {
 			continue
@@ -61,12 +65,12 @@ func (o *outputter) OutputTodoItems(items []Todo) {
 		fmt.Printf("%s:\n", key)
 
 		table := tablewriter.NewWriter(os.Stdout)
-		table.SetHeader([]string{"Index", "Description", "Due", "Tag", "Important"})
+		table.SetHeader([]string{"Index", "File", "Description", "Due", "Tag", "Important"})
 
 		for index, item := range items {
 			indexAsString := strconv.Itoa(index + 1)
 			importantAsString := strconv.FormatBool(item.Important)
-			table.Append([]string{indexAsString, item.Text, item.Due.Format("01/02/2006"), item.Tag, importantAsString})
+			table.Append([]string{indexAsString, getFriendlyFilename(item.Filename, config), item.Text, item.Due.Format("01/02/2006"), item.Tag, importantAsString})
 		}
 
 		table.Render()
@@ -95,6 +99,19 @@ func getItemsBeforeDate(itemsMap map[int]Todo, endDate time.Time) []Todo {
 	}
 
 	return itemsToReturn
+}
+
+func getFriendlyFilename(fileName string, config *Config) string {
+	if val, ok := config.Mappings[fileName]; ok {
+		return val
+	}
+
+	lastIndexOfSlash := strings.LastIndex(fileName, "/")
+	if lastIndexOfSlash > 0 {
+		return fileName[lastIndexOfSlash+1 : len(fileName)]
+	}
+
+	return fileName
 }
 
 // NewOutputter creates an object to output Todo items
