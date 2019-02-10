@@ -92,6 +92,13 @@ func parseRawTodoItems(rawItems []string) ([]Todo, error) {
 		}
 		// 2. Extract metadata
 		result := todoItemRegex.FindAllStringSubmatch(rawItem, -1)
+
+		// If there's no metadata then just attach the raw text
+		if len(result) == 0 {
+			parsedItems = append(parsedItems, Todo{Text: rawItem})
+			continue
+		}
+
 		todoItemText := result[0][1]
 		todoItemMetadata := result[0][2]
 
