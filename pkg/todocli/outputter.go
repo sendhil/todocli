@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/olekukonko/tablewriter"
+	"github.com/sendhil/todocli/pkg/todocli/utils"
 )
 
 // Outputter interface allows the outputting of Todo items in a nicer to look format
@@ -50,7 +51,7 @@ func (o *outputter) OutputTodoItems(items []Todo) {
 	itemsPrinted := 0
 	printedSpacer := false
 
-	config := getConfig()
+	config := utils.GetConfig()
 
 	for key, items := range itemsByBucket {
 		if len(items) == 0 {
@@ -101,7 +102,7 @@ func getItemsBeforeDate(itemsMap map[int]Todo, endDate time.Time) []Todo {
 	return itemsToReturn
 }
 
-func getFriendlyFilename(fileName string, config *Config) string {
+func getFriendlyFilename(fileName string, config *utils.Config) string {
 	if val, ok := config.Mappings[fileName]; ok {
 		return val
 	}

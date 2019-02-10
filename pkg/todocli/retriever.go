@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/fatih/structtag"
+	"github.com/sendhil/todocli/pkg/todocli/utils"
 )
 
 // TodoRetriever represents an interface that can retrieve Todo Items
@@ -56,7 +57,7 @@ func getRawTodoItemsWithMetadata() []string {
 }
 
 func getPathOfTodoItems() string {
-	config := getConfig()
+	config := utils.GetConfig()
 	return config.Path
 }
 

@@ -1,4 +1,4 @@
-package todocli
+package utils
 
 import (
 	"fmt"
@@ -9,9 +9,16 @@ import (
 	"github.com/go-yaml/yaml"
 )
 
+// Config is a struct representing Configuration parameters for todocli
+type Config struct {
+	Path     string            `yaml:"path"`
+	Mappings map[string]string `yaml:"mappings"`
+}
+
 var cachedConfig *Config
 
-func getConfig() *Config {
+// GetConfig retrieves the configuration for todocli
+func GetConfig() *Config {
 	if cachedConfig != nil {
 		return cachedConfig
 	}

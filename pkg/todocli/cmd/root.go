@@ -21,10 +21,14 @@ var Tag string
 // File filters the output by a specific file
 var File string
 
+// FileAlias filters the output by a specific file alias
+var FileAlias string
+
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "verbose output")
 	rootCmd.PersistentFlags().StringVarP(&Tag, "tag", "t", "", "tag to filter for")
 	rootCmd.PersistentFlags().StringVarP(&File, "file", "f", "", "file to filter for")
+	rootCmd.PersistentFlags().StringVarP(&FileAlias, "file-alias", "a", "", "file alias to filter for")
 }
 
 // Execute executes the root command
