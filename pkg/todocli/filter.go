@@ -49,8 +49,10 @@ func (f *filter) GetItemsWithTag(items []Todo, tag string) []Todo {
 	lowerCasedTag := strings.ToLower(tag)
 
 	for _, item := range items {
-		if strings.ToLower(item.Tag) == lowerCasedTag {
-			itemsToReturn = append(itemsToReturn, item)
+		for _, tag := range item.Tags {
+			if strings.ToLower(tag) == lowerCasedTag {
+				itemsToReturn = append(itemsToReturn, item)
+			}
 		}
 	}
 

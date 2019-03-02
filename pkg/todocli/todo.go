@@ -6,7 +6,7 @@ import "time"
 type Todo struct {
 	Text       string
 	Filename   string
-	Tag        string
+	Tags       []string
 	Important  bool
 	Due        time.Time
 	CreatedAt  time.Time

@@ -147,6 +147,7 @@ func attachMetadata(item Todo, metadata string) (Todo, error) {
 	}
 
 	// 4. Determine tags and determine if this task has been flagged as important
+	// `tag:"tag1,tag2"`
 	tagData, err := tags.Get("tag")
 	if err == nil {
 		if strings.Contains(strings.ToLower(tagData.Name), "important") {
@@ -154,7 +155,15 @@ func attachMetadata(item Todo, metadata string) (Todo, error) {
 		}
 
 		if len(tagData.Name) > 0 {
-			itemToReturn.Tag = tagData.Name
+			itemToReturn.Tags = []string{tagData.Name}
+		}
+	}
+
+	tagsData, err := tags.Get("tags")
+	if err == nil {
+		itemToReturn.Tags = []string{tagsData.Name}
+		if len(tagsData.Options) >= 0 {
+			itemToReturn.Tags = append(itemToReturn.Tags, tagsData.Options...)
 		}
 	}
 
